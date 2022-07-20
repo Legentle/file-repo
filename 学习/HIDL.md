@@ -16,3 +16,10 @@ HIDL 的目标是，可以在无需重新构建 HAL 的情况下替换框架。H
 ### HIDL 语法
 根据设计，HIDL 语言与 C 语言类似（但前者不使用 C 预处理器）。  
 如需详细了解 HIDL 代码样式，请参阅[代码样式指南](https://source.android.google.cn/devices/architecture/hidl/code-style?hl=zh-cn)。  
+
+### HIDL术语
+- Binder化：表示 HIDL 用于进程之间的远程过程调用，并通过类似 Binder 的机制来实现。另请参阅“直通式”。
+- 异步回调：由 HAL 用户提供、传递给 HAL（通过 HIDL 方法）并由 HAL 调用以随时返回数据的接口。
+- 同步回调：将数据从服务器的 HIDL 方法实现返回客户端。不用于返回无效值或单个原始值的方法。
+<font color=#00ffff size=72>需温习</font>
+
