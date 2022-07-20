@@ -1,6 +1,6 @@
 # HIDL知识回顾
 [HIDL总教程](https://source.android.google.cn/devices/architecture/hidl?hl=zh-cn "安卓开发者")
-## 一、介绍  
+## 介绍  
 >HIDL（hal接口语言）适用于指定HAL和其用户之间的接口的一种接口描述语言（IDL)  
 
 HIDL的出现是为了更好的服务于Treble这个项目,Project Treble 将供应商实现（由芯片制造商编写的设备专属底层软件）与 Android 操作系统框架分离开来。  
@@ -21,5 +21,34 @@ HIDL 的目标是，可以在无需重新构建 HAL 的情况下替换框架。H
 - Binder化：表示 HIDL 用于进程之间的远程过程调用，并通过类似 Binder 的机制来实现。另请参阅“直通式”。
 - 异步回调：由 HAL 用户提供、传递给 HAL（通过 HIDL 方法）并由 HAL 调用以随时返回数据的接口。
 - 同步回调：将数据从服务器的 HIDL 方法实现返回客户端。不用于返回无效值或单个原始值的方法。
-<font color=#00ffff size=72>需温习</font>
+<font color=#00ffff size=6>需温习</font>
 
+
+## HIDL接口和软件包
+>HIDL 围绕接口构建而成，而接口是在面向对象的语言中用来定义行为的抽象类型。每个接口都是软件包的一部分。
+### 软件包
+- 已发布的 HIDL 软件包的根目录为 hardware/interfaces 或 vendor/vendorName（例如，对于 Pixel 设备，根目录为 vendor/google）。
+- 定义同一个软件包的所有文件都位于同一目录下。例如，可以在 hardware/interfaces/example/extension/light/2.0 下找到 package android.hardware.example.extension.light@2.0。
+### 接口定义
+除了 types.hal 之外，其他每个 .hal 文件均定义一个接口。接口通常定义如下：
+~~~
+interface IBar extends IFoo { // IFoo is another interface
+    // embedded types
+    struct MyStruct {/*...*/};
+
+    // interface methods
+    create(int32_t id) generates (MyStruct s);
+    close();
+};
+~~~
+
+### 导入
+import 语句本身涉及两个实体：
+- 导入实体：可以是软件包或接口；以及
+- 被导入实体：也可以是软件包或接口。
+```
+import android.hardware.nfc@1.0;            //完整软件包导入
+import android.hardware.example@1.0::IQuux; // import an interface and types.hal(部分导入)
+import android.hardware.example@1.0::types; // import just types.hal(仅类型导入)
+```
+### 接口继承
