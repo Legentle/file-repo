@@ -52,3 +52,36 @@ import android.hardware.example@1.0::IQuux; // import an interface and types.hal
 import android.hardware.example@1.0::types; // import just types.hal(仅类型导入)
 ```
 ### 接口继承
+
+### 接口哈希
+这是一种旨在防止意外更改接口并确保接口更改经过全面审查的机制。这种机制是必需的，因为 HIDL 接口带有版本编号，也就是说，接口一经发布便不得再更改，但不会影响应用二进制接口 (ABI) 的情况（例如更正备注）除外。
+
+#### 布局
+每个软件包根目录（即映射到 ```hardware/interfaces ```的``` android.hardware``` 或映射到 ```vendor/foo/hardware/interfaces``` 的 ```vendor.foo```）都必须包含一个列出所有已发布 HIDL 接口文件的 current.txt 文件。
+#### 使用 hidl-gen 添加哈希
+可以手动将哈希添加到 current.txt 文件中，也可以使用 hidl-gen 添加。
+hidl-gen 生成的每个接口定义库都包含哈希，通过调用 IBase::getHashChain 可检索这些哈希。hidl-gen 编译接口时，会检查 HAL 软件包根目录中的 current.txt 文件，查看 HAL 是否已更改：
+- 如果没有找到 HAL 的哈希，则接口会被视为未发布（处于开发阶段），并且编译会继续进行。
+- 如果找到了相应哈希，则会对照当前接口对其进行检查：
+  - 如果接口与哈希匹配，则编译会继续进行。
+  - 如果接口与哈希不匹配，则编译会暂停，因为这意味着之前发布的接口会被更改。
+    - 如需在更改的同时不影响 ABI（请参阅 ABI 稳定性），必须先修改 current.txt 文件，然后编译才能继续进行。
+    - 其他所有更改都应在接口的次要或主要版本升级中进行。
+
+## 服务和数据转移
+介绍如何注册和发现服务。及通过.hal文件内的接口中定义的方法将数据发送到服务。
+### 注册服务
+HIDL 接口服务器（实现接口的对象）可注册为已命名的服务。注册的名称不需要与接口或软件包名称相关。
+### 发现服务
+HIDL类调用```getService```
+### 服务终止通知
+如需接收通知，客户端必须：
+1. 创建 HIDL 类/接口 ```hidl_death_recipient``` 的子类（在 C++ 代码中，而不是在 HIDL 中）。
+2. 替换其 ```serviceDied()``` 方法。
+3. 实例化 ```hidl_death_recipient``` 子类的对象。
+4. 在要监控的服务上调用 ```linkToDeath()``` 方法，并传入 ```IDeathRecipient``` 的接口对象。请注意，此方法并不具备在其上调用它的终止接收方或代理的所有权。
+
+### 服务转移
+可通过调用 .hal 文件内的接口中定义的方法将数据发送到服务。具体方法有两类：
+    1. 阻塞方法
+    2. 单方向法
