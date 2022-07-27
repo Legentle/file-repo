@@ -34,5 +34,9 @@ left（左对齐）、right（右对齐）、center（居中）
 下划线使用 html 语法的 ins 标签实现
 <ins>这是一个下划线</ins>
 
+###文字底色
+借助 table, tr, td 等表格标签的 bgcolor 属性来实现背景色。将那一整行看作一个表格，更改整个格子的背景色（bgcolor）。
+<table><tr><td bgcolor=DarkSeaGreen>这里的背景色是：DarkSeaGreen，此处输入任意想输入的内容</td></tr></table>
+
 
 总之markdown兼容html语言

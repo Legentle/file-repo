@@ -16,7 +16,7 @@ Android系统还自带了这种轻量级、运算速度极快的嵌入式关系�
 Android系统还提供了丰富的多媒体服务，如音乐、视频、录音、拍照、闹铃，等等，这一切你都可以在程序中通过代码进行控制，让你的应用变得更加丰富多彩。
 ### 5．地理位置定位
 移动设备和PC相比起来，地理位置定位功能应该可以算是很大的一个亮点。现在的Android手机都内置有GPS，走到哪儿都可以定位到自己的位置，发挥你的想象就可以做出创意十足的应用，如果再结合功能强大的地图功能，LBS这一领域潜力无限。
-# 重点摘要
+# 基础知识重点摘要
 - Package name表示项目的包名，Android系统就是通过包名来区分不同应用程序的，因此包名一定要具有唯一性。
 
 - 任何一个新建的项目都会默认使用Android模式的项目结构，但这并不是项目真实的目录结构，而是被Android Studio转换过的。点击图中的Android区域可以切换项目结构模式。
@@ -63,7 +63,7 @@ Android系统还提供了丰富的多媒体服务，如音乐、视频、录音�
 ***4．java***
 <font color=red>存放java代码的地方</font>
 *5．res*
-就是在项目中使用到的所有图片、布局、字符串等资源都要存放在这个目录下。这个目录下还有很多子目录，图片放在drawable目录下，布局放在layout目录下，字符串放在values目录下
+就是在项目中使用到的所有图片、布局、字符串等资源都要存放在这个目录下。这个目录下还有很多子目录:文件名以drawable开头放图片；以mipmap开头放图标；以values开头;放字符串、样式、颜色等配置;layout文件夹放布局文件。
 *6．AndroidManifest.xml*
 整个Android项目的配置文件，你在程序中定义的所有四大组件都需要在这个文件里注册，另外还可以在这个文件中给应用程序添加权限声明。
 *7．test*
@@ -100,7 +100,56 @@ public class HelloWorldAtivity extends AppCompatActivity{
     }
 }
 ```
+分析：
+- HelloWorldActivity是继承自AppCompatActivity的
+- AppCompatActivity可以将Activity在各个系统版本中增加的特性和功能最低兼容到Android 2.1系统
+- Activity是Android系统提供的一个活动基类，我们项目中所有的活动都必须继承它或者它的子类才能拥有活动的特性（AppCompatActivity是Activity的子类）
+- HelloWorldActivity中有一个onCreate()方法，这个方法是一个活动被创建时必定要执行的方法，其中只有两行代码
+- Android程序的设计讲究逻辑和视图分离，因此是不推荐在活动中直接编写界面
+- 在布局文件（布局文件都是定义在res/layout目录下的）中编写界面，然后在活动中引入进来。
+- 可以看到，在onCreate()方法的第二行调用了setContentView()方法，就是这个方法给当前的活动引入了一个hello_world_layout布局，那Hello World！
+>OnCreate是Android中的一个特别的函数，用来“表示一个窗口正在生成”。其不产生窗口，只是在窗口显示前设置窗口的属性如风格、位置颜色等。
+OnCreate是一个消息响应函数，是响应WM_CREATE消息的一个函数，而WM_CREATE消息是由Create函数调用的。
+如果写在你自己定义的一个OnCreate(),在这个函数里写调用OnCreate的话，必然要写super.OnCreate()，否则会递归调用，
+其他地方写的话，super是调用父类的,this是调用你覆盖的，不过一般没有人会去手动调用这玩意吧，因此一般是调用super.OnCreate(). 
 
+>应用程序名的字符串，我们有以下两种方式来引用它。
+❑ 在代码中通过R.string.app_name可以获得该字符串的引用。
+❑ 在XML中通过@string/app_name可以获得该字符串的引用。
+//基本的语法就是上面这两种方式，其中string部分是可以替换的，如果是引用的图片资源就可以替换成drawable，如果是引用的应用图标就可以替换成mipmap，如果是引用的布局文件就可以替换成layout，以此类推。
+
+<table><tr><td bgcolor=MistyRose>AndroidManifest.xml(注册)-->代码中运行-->layout(布局)</td></tr></table>
+
+
+## Gradle
+>Gradle是一个基于Apache Ant和Apache Maven概念的项目自动化构建开源工具。它使用一种基于Groovy的特定领域语言(DSL)来声明项目设置，也增加了基于Kotlin语言的kotlin-based DSL，抛弃了基于XML（如Ant和Maven）的各种繁琐配置。
+Gradle是一个基于JVM的构建工具，是一款通用灵活的构建工具，支持maven， Ivy仓库，支持传递性依赖管理，而不需要远程仓库或者是pom.xml和ivy.xml配置文件，基于Groovy，build脚本使用Groovy编写。
+
+HelloWorld项目中有两个build.gradle文件，一个是在最外层目录下的，一个是在app目录下的。
+最外层目录下的build.gradle文件
+![最外层目录下的build.gradle文件](图片/最外层目录下的build.gradle文件.png)
+jcenter是一个代码托管仓库，很多Android开源项目都会选择将代码托管到jcenter上，声明了这行配置之后，我们就可以在项目中轻松引用任何jcenter上的开源项目了。
+dependencies闭包中使用classpath声明了一个Gradle插件。因为Gradle并不是专门为构建Android项目而开发的，Java、C++等很多种项目都可以使用Gradle来构建。
+
+app目录下的build.gradle
+![app目录下的build.gradle](./图片/内层目录下的build.gradle文件.png)
+
+## Android的日志工具Log
+
+Android中的日志工具类是Log（android.util.Log），这个类中提供了如下5个方法来供我们打印日志。
+❑ Log.v()。用于打印那些最为琐碎的、意义最小的日志信息。对应级别verbose，是Android日志里面级别最低的一种。
+❑ Log.d()。用于打印一些调试信息，这些信息对你调试程序和分析问题应该是有帮助的。对应级别debug，比verbose高一级。
+❑ Log.i()。用于打印一些比较重要的数据，这些数据应该是你非常想看到的、可以帮你分析用户行为数据。对应级别info，比debug高一级。
+❑ Log.w()。用于打印一些警告信息，提示程序在这个地方可能会有潜在的风险，最好去修复一下这些出现警告的地方。对应级别warn，比info高一级。
+❑ Log.e()。用于打印程序中的错误信息，比如程序进入到了catch语句当中。当有错误信息打印出来的时候，一般都代表你的程序出现严重问题了，必须尽快修复。对应级别error，比warn高一级。
+### 为什么使用Log而不使用System.out
+System.out缺点：日志打印不可控制、打印时间无法确定、不能添加过滤器、日志没有级别区分……
+logcat中还能很轻松地添加过滤器
+logcat中的日志级别控制
+
+# 手写Activity
+1.创建新项目，选择No Activity
+2.手动
 
 # 碰到的问题
 ## 软件使用
