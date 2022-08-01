@@ -151,6 +151,93 @@ logcat中的日志级别控制
 1.创建新项目，选择No Activity
 2.手动
 
+## 活动的生命周期
+***每个活动在其生命周期中最多可能会有4种状态。***
+1．运行状态
+2．暂停状态
+2．暂停状态
+4．销毁状态
+
+### 活动的生存期
+Activity类中定义了 ***7个回调方法***，覆盖了活动生命周期的每一个环节。
+❑ onCreate()。它会在活动第一次被创建的时候调用。你应该在这个方法中完成活动的初始化操作，比如说加载布局、绑定事件等。
+❑ onStart()。这个方法在活动由不可见变为可见的时候调用。
+❑ onResume()。这个方法在活动准备好和用户进行交互的时候调用。此时的活动一定位于返回栈的栈顶，并且处于运行状态。
+❑ onPause()。这个方法在系统准备去启动或者恢复另一个活动的时候调用。我们通常会在这个方法中将一些消耗CPU的资源释放掉，以及保存一些关键数据，但这个方法的执行速度一定要快，不然会影响到新的栈顶活动的使用。
+❑ onStop()。这个方法在活动完全不可见的时候调用。它和onPause()方法的主要区别在于，如果启动的新活动是一个对话框式的活动，那么onPause()方法会得到执行，而onStop()方法并不会执行。
+❑ onDestroy()。这个方法在活动被销毁之前调用，之后活动的状态将变为销毁状态。
+❑ onRestart()。这个方法在活动由停止状态变为运行状态之前调用，也就是活动被重新启动了。
+
+以上7个方法中除了onRestart()方法，其他都是两两相对的，从而又可以将活动分为  ***3种生存期***。
+❑ **完整生存期**。活动在onCreate()方法和onDestroy()方法之间所经历的，就是完整生存期。一般情况下，一个活动会在onCreate()方法中完成各种初始化操作，而在onDestroy()方法中完成释放内存的操作。
+❑ **可见生存期**。活动在onStart()方法和onStop()方法之间所经历的，就是可见生存期。在可见生存期内，活动对于用户总是可见的，即便有可能无法和用户进行交互。我们可以通过这两个方法，合理地管理那些对用户可见的资源。比如在onStart()方法中对资源进行加载，而在onStop()方法中对资源进行释放，从而保证处于停止状态的活动不会占用过多内存。
+❑ **前台生存期**。活动在onResume()方法和onPause()方法之间所经历的就是前台生存期。在前台生存期内，活动总是处于运行状态的，此时的活动是可以和用户进行交互的，我们平时看到和接触最多的也就是这个状态下的活动。
+
+## 活动的启动模式
+### 1、standard
+standard是活动**默认**的启动模式，在不进行显式指定的情况下，所有活动都会自动使用这种启动模式。
+使用standard模式的活动，系统不会在乎这个活动是否已经在返回栈中存在，每次启动都会创建该活动的一个新的实例。
+### 2、singleTop
+在启动活动时如果发现返回栈的栈顶已经是该活动，则认为可以直接使用它，不会再创建新的活动实例。
+### 3、singleTask
+每次启动该活动时系统首先会在返回栈中检查是否存在该活动的实例，如果发现已经存在则直接使用该实例，并把在这个活动之上的所有活动统统出栈，如果没有发现就会创建一个新的活动实例。
+### 4、singleInstance
+启用一个新的返回栈来管理这个活动
+
+## 活动的实践
+### 1、知晓当前是在哪一个活动
+新建一个BaseActivity类（com.example.activitytest包→New→Java Class），创建一个普通的Java类就可以了。然后让BaseActivity继承自AppCompatActivity，在onCreate()方法中获取了当前实例的类名，并通过Log打印了出来。接下来让BaseActivity成为ActivityTest项目中所有活动的父类。现在每当我们进入到一个活动的界面，该活动的类名就会被打印出来
+### 2、随时随地退出程序
+新建一个ActivityCollector类作为活动管理器。在活动管理器中，我们通过一个List来暂存活动，然后提供了一个addActivity()方法用于向List中添加一个活动，提供了一个removeActivity()方法用于从List中移除活动，最后提供了一个finishAll()方法用于将List中存储的活动全部销毁掉。
+### 3、启动活动的最佳写法
+在活动中中添加了一个actionStart()方法，在这个方法中完成了Intent的构建，另外所有SecondActivity中需要的数据都是通过actionStart()方法的参数传递过来的，然后把它们存储到Intent中，最后调用startActivity()方法启动SecondActivity。
+# UI开发
+## 常用控件
+- TextView
+  在界面上显示一段文本信息
+  使用android:gravity来指定文字的对齐方式，可选值有top、bottom、left、right、center等，可以用“|”来同时指定多个值
+  通过android:textSize属性可以指定文字的大小，通过android:textColor属性可以指定文字的颜色，在Android中字体大小使用sp作为单位。
+- Button
+  用于和用户进行交互的一个重要控件
+  系统会对Button中的所有英文字母自动进行大写转换，可以通过Android:textAllCaps="false"禁用
+  对按钮点击事件监听，启动相依功能
+- EditText
+  允许用户在控件里输入和编辑内容，并可以在程序中对这些内容进行处理
+  可以使用android:maxLines来限制最大显示行数，当输入的内容超过时，文本会向上滚动
+  还可以结合使用EditText与Button来完成一些功能，比如通过点击按钮来获取EditText中输入的内容：首先通过findViewById()方法得到EditText的实例，然后在按钮的点击事件里调用EditText的getText()方法获取到输入的内容，再调用toString()方法转换成字符串，最后使用Toast将输入的内容显示出来。
+- ImageView
+  用于在界面上展示图片的一个控件
+- ProgressBar
+  用于在界面上显示一个进度条
+  通过style属性可以将它指定成水平进度条
+- AlertDialog
+  AlertDialog可以在当前的界面弹出一个对话框，这个对话框是置顶于所有界面元素之上的，能够屏蔽掉其他控件的交互能力，因此AlertDialog一般都是用于提示一些非常重要的内容或者警告信息
+- ProgressDialog
+  ProgressDialog和AlertDialog有点类似，都可以在界面上弹出一个对话框，都能够屏蔽掉其他控件的交互能力。不同的是，ProgressDialog会在对话框中显示一个进度条，一般用于表示当前操作比较耗时，让用户耐心地等待。
+
+## 4种基本布局
+1 线性布局
+2 相对布局
+3 帧布局
+4 百分比布局
+
+## 自定义控件
+## 最常用和最难用的控件——ListView
+## 更强大的滚动控件——RecyclerView
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # 碰到的问题
 ## 软件使用
 - activity_main.xml：布局文件，Android的UI界面显示的视图，所有的控件在这里设计。为什么点进去没有代码？教程也不写，太烦了。
@@ -161,3 +248,10 @@ logcat中的日志级别控制
 
 - Android Studio点击 DeviceManager不显示设备管理窗口的问题
   [解决方案](https://blog.csdn.net/KimBing/article/details/123049886)
+
+- ' ' is not a valid resource name character
+- 删去""内多余的空格
+
+- Android编译问题:Suggestion: use tools:overrideLibrary=““ to force usage
+- [1](https://blog.csdn.net/qq_43192269/article/details/82704865)
+- [2](https://blog.csdn.net/ShiXinXin_Harbour/article/details/121682390)
